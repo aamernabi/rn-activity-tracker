@@ -1,8 +1,10 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Activity Tracker App
+
+## 📌 Overview  
+**Activity Tracker App** is a React Native mobile application that uses built-in sensors to track user activity, manage medicine reminders, and log session data.  
+
 
 # Getting Started
-
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
 ## Step 1: Start Metro
 
@@ -60,38 +62,46 @@ yarn ios
 
 If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## 🚀 Features  
+### 1. **Activity Tracking**  
+- Uses **accelerometer & gyroscope** to detect user activity (Walking, Running, Stationary).  
+- Displays **real-time activity type & duration**.  
+- Uses a **background service** to track activity when the app is minimized.  
 
-## Step 3: Modify your app
+### 2. **Location-Based Tracking**  
+- Tracks **GPS location** and **plots path on a map**.  
+- Calculates **total distance traveled** during the session.  
 
-Now that you have successfully run the app, let's make changes!
+### 3. **Dashboard** (Home Tab)  
+- Displays **ambient light level & atmospheric pressure**.  
+- Displays **total duration & calories & distance**.  
+- Users can **start tracking**.  
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+### 4. **Sessions List** (Sessions Tab)  
+- Logs session data **locally using SQLite**.  
+- Users can **view past sessions** including distance, activity type, and duration.  
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### 5. **Medicine Reminders** (Medicine Tab)  
+- Lists **scheduled medicines**.  
+- Sends **push notifications** for reminders.  
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+---
 
-## Congratulations! :tada:
+## 🛠️ Tech Stack  
+- **React Native** (CLI)  
+- **React Navigation** (for tab navigation)  
+- **react-native-sensors** (for accelerometer & gyroscope & barometer)
+- **react-native-ambient-light-sensor** (for for ambient light sensor)
+- **react-native-geolocation-service** (for GPS tracking)  
+- **react-native-sqlite-storage** (for local session storage)  
+- **@notifee/react-native** (for for notifications) 
 
-You've successfully run and modified your React Native App. :partying_face:
+---
 
-### Now what?
+## 📱 Installation & Setup  
+### 1️⃣ Clone the Repository  
+```sh
+git clone https://github.com/aamernabi/rn-activity-tracker.git
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+cd ActivityTrackerApp
+```
