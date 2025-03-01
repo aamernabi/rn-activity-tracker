@@ -16,6 +16,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import ActivityTrackingContent from '../components/ActivityTrackingContent';
 import Session from '../models/Sessions';
 
+const AndroidLocationEnabler = NativeModules.AndroidLocationEnabler;
 const TrackingModule = NativeModules.TrackingModule;
 
 export default function ActivityTrackingScreen() {
@@ -23,6 +24,7 @@ export default function ActivityTrackingScreen() {
   const db = useDatabase();
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [isLocationEnabled, setLocationEnabled] = useState(false);
   const [sessionId, setSessionId] = useState(-1);
   const [lastSession, setLastSession] = useState<Session>();
 
@@ -68,7 +70,18 @@ export default function ActivityTrackingScreen() {
     setPermissionsGranted(allGranted);
   };
 
+  const checkLocationStatus = async () => {
+    if (Platform.OS === 'android') {
+      const checkEnabled: boolean =
+        await AndroidLocationEnabler.isLocationEnabled();
+      setLocationEnabled(checkEnabled);
+    } else {
+      setLocationEnabled(true);
+    }
+  };
+
   useEffect(() => {
+    checkLocationStatus();
     checkPermissions();
   }, []);
 
@@ -95,6 +108,33 @@ export default function ActivityTrackingScreen() {
 
   if (!isConnected) {
     return <NoInternetView />;
+  }
+
+  if (!isLocationEnabled) {
+    return (
+      <ActionView
+        title="Location disabled"
+        message="Location is turn off on your device. Click 'Turn on' to turn on the location."
+        btnText="Turn on"
+        onPress={async () => {
+          if (Platform.OS === 'android') {
+            try {
+              const enableResult =
+                await AndroidLocationEnabler.promptForEnableLocationIfNeeded(
+                  {},
+                );
+              if (enableResult) {
+                setLocationEnabled(true);
+              }
+            } catch (error: unknown) {
+              if (error instanceof Error) {
+                //console.error(error.message);
+              }
+            }
+          }
+        }}
+      />
+    );
   }
 
   if (!permissionsGranted) {
