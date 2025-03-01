@@ -77,20 +77,17 @@ class LocationTrackingService : Service() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
-                    Log.d(
-                        "LocationService",
-                        "Lat: ${location.latitude}, Lng: ${location.longitude}"
-                    )
+                    val intent = Intent(LOCATION_UPDATE_ACTION).apply {
+                        putExtra("latitude", location.latitude)
+                        putExtra("longitude", location.longitude)
+                    }
+                    sendBroadcast(intent)
                 }
             }
         }
 
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                this, Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return
@@ -110,5 +107,7 @@ class LocationTrackingService : Service() {
         private const val LOCATION_REQUEST_INTERVAL_IN_SECONDS = 5L
         private const val NOTIFICATION_TITLE = "Activity Tracking"
         private const val NOTIFICATION_DESCRIPTION = "Tracking your activity in the background"
+
+        const val LOCATION_UPDATE_ACTION = "com.activitytrackerapp.LOCATION_UPDATE"
     }
 }
