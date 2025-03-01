@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, ScrollView} from 'react-native';
+import {View, StyleSheet, ScrollView, NativeModules} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import DailyChallengeCard from '../components/DailyChallengeCard';
 import OverAllStatusCard from '../components/OverAllStatusCard';
@@ -10,6 +10,7 @@ import AtmosphericPressureCard from '../components/AtmosphericPressureCard';
 import LightSensorCard from '../components/LightSensorCard';
 import {useDatabase} from '../hooks/useDatabase';
 import {fetchSessionSummary} from '../data/db';
+const TrackingModule = NativeModules.TrackingModule;
 
 // import { Container } from './styles';
 
@@ -25,6 +26,16 @@ export default function HomeScreen() {
   const [totalDistance, setTotalDistance] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const [totalCalories, setTotalCalories] = useState(0);
+
+  useEffect(() => {
+    const checkServiceStatus = async () => {
+      const isServiceRunning = await TrackingModule.isTrackingServiceRunning();
+      if (isServiceRunning) {
+        navigation.navigate('ActivityTracking');
+      }
+    };
+    checkServiceStatus();
+  }, [navigation]);
 
   useEffect(() => {
     if (db) {

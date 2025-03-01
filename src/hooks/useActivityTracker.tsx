@@ -112,7 +112,11 @@ const useActivityTracker = () => {
     };
   }, []);
 
-  return {activity: smoothedActivity, duration: duration};
+  return {
+    activity: smoothedActivity,
+    duration: duration,
+    setDuration: setDuration,
+  };
 };
 
 export default useActivityTracker;

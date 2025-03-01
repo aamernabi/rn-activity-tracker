@@ -1,4 +1,4 @@
-import {View, StyleSheet, Platform} from 'react-native';
+import {View, StyleSheet, Platform, NativeModules} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNetInfo} from '@react-native-community/netinfo';
 import NoInternetView from '../components/NoInternetView';
@@ -10,10 +10,13 @@ import {
 } from 'react-native-permissions';
 import ActionView from '../components/ActionView';
 import {useDatabase} from '../hooks/useDatabase';
-import {completeSession, startSession} from '../data/db';
+import {completeSession, getLastOngoingSession, startSession} from '../data/db';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import ActivityTrackingContent from '../components/ActivityTrackingContent';
+import Session from '../models/Sessions';
+
+const TrackingModule = NativeModules.TrackingModule;
 
 export default function ActivityTrackingScreen() {
   const {isConnected} = useNetInfo();
@@ -21,11 +24,13 @@ export default function ActivityTrackingScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [permissionsGranted, setPermissionsGranted] = useState(false);
   const [sessionId, setSessionId] = useState(-1);
+  const [lastSession, setLastSession] = useState<Session>();
 
   const checkPermissions = async () => {
     const permissions = Platform.select({
       android: [
         PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
+        PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION,
         PERMISSIONS.ANDROID.ACTIVITY_RECOGNITION,
       ],
       ios: [PERMISSIONS.IOS.LOCATION_WHEN_IN_USE, PERMISSIONS.IOS.MOTION],
@@ -46,6 +51,7 @@ export default function ActivityTrackingScreen() {
     const permissions = Platform.select({
       android: [
         PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
+        PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION,
         PERMISSIONS.ANDROID.ACTIVITY_RECOGNITION,
       ],
       ios: [PERMISSIONS.IOS.LOCATION_WHEN_IN_USE, PERMISSIONS.IOS.MOTION],
@@ -68,8 +74,18 @@ export default function ActivityTrackingScreen() {
 
   useEffect(() => {
     const createSession = async () => {
-      const id = await startSession(db);
-      setSessionId(id);
+      const isServiceRunning = await TrackingModule.isTrackingServiceRunning();
+      if (isServiceRunning && db) {
+        getLastOngoingSession(db, session => {
+          if (session) {
+            setSessionId(session.id);
+            setLastSession(session);
+          }
+        });
+      } else if (db) {
+        const id = await startSession(db);
+        setSessionId(id);
+      }
     };
 
     if (isConnected && permissionsGranted) {
@@ -85,7 +101,7 @@ export default function ActivityTrackingScreen() {
     return (
       <ActionView
         title="Permission Required"
-        message="App need 'Location' and 'Activity Recognition' permissions. Allow these permissions to start."
+        message="App need 'Location' and 'Activity Recognition' permissions. Allow these permissions to start. Also, make sure to 'Allow all the time' location permission is selected"
         btnText="Grant permissions"
         onPress={() => requestPermissions()}
       />
@@ -95,6 +111,7 @@ export default function ActivityTrackingScreen() {
   return (
     <View style={styles.container}>
       <ActivityTrackingContent
+        lastSession={lastSession}
         onStop={(activity, distance) => {
           if (db) {
             completeSession(db, sessionId, activity, distance);

@@ -1,9 +1,11 @@
 import Icon from '@react-native-vector-icons/material-design-icons';
 import useActivityTracker from '../hooks/useActivityTracker';
-import LocationTracker from './LocationTracker';
+import LocationTracker from './LocationTracker2';
 import {
   Alert,
   BackHandler,
+  DeviceEventEmitter,
+  NativeModules,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -14,11 +16,25 @@ import React, {useEffect} from 'react';
 import {Card} from 'react-native-paper';
 import {formatSeconds} from '../utils/datetime';
 import useDistanceTracker from '../hooks/useDistanceTracker';
+import Session from '../models/Sessions';
+
+const TrackingModule = NativeModules.TrackingModule;
 
 const handleStopTracking = (onConfirm: () => void) => {
   Alert.alert('Confirmation!', 'Are you sure you want to stop tracking?', [
     {text: 'Cancel', style: 'cancel'},
-    {text: 'YES', onPress: onConfirm},
+    {
+      text: 'YES',
+      onPress: async () => {
+        onConfirm();
+        const isServiceRunning =
+          await TrackingModule.isTrackingServiceRunning();
+        if (isServiceRunning) {
+          DeviceEventEmitter.removeAllListeners('onLocationUpdate');
+          await TrackingModule.stopTrackingService();
+        }
+      },
+    },
   ]);
 };
 
@@ -28,6 +44,7 @@ export interface InfoCardProps {
 }
 
 export interface ActivityTrackingContentProps {
+  lastSession?: Session;
   onStop: (activity: string, distance: number) => void;
 }
 
@@ -44,8 +61,8 @@ const InfoCard: React.FC<InfoCardProps> = props => {
 const ActivityTrackingContent: React.FC<
   ActivityTrackingContentProps
 > = props => {
-  const {activity, duration} = useActivityTracker();
-  const {distance, handleNewDistance} = useDistanceTracker();
+  const {activity, duration, setDuration} = useActivityTracker();
+  const {distance, handleNewDistance, setDistance} = useDistanceTracker();
 
   useEffect(() => {
     const backAction = () => {
@@ -59,6 +76,13 @@ const ActivityTrackingContent: React.FC<
     );
     return () => backHandler.remove();
   }, [activity, distance, props]);
+
+  useEffect(() => {
+    if (props.lastSession) {
+      setDuration(props.lastSession.duration);
+      setDistance(props.lastSession.distance);
+    }
+  }, [props.lastSession, setDuration, setDistance]);
 
   return (
     <>

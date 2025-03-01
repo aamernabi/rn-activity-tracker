@@ -14,7 +14,10 @@ const RootStack = createNativeStackNavigator({
       screen: RootScreen,
       options: {headerShown: false},
     },
-    ActivityTracking: ActivityTrackingScreen,
+    ActivityTracking: {
+      screen: ActivityTrackingScreen,
+      options: {headerShown: false},
+    },
     AddReminder: AddMedicineReminderScreen,
   },
 });

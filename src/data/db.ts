@@ -156,6 +156,43 @@ export const fetchSessionSummary = (
   });
 };
 
+export const getLastOngoingSession = (
+  db: SQLiteDatabase,
+  callback: (session?: Session) => void,
+) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `SELECT * FROM ${SESSIONS_TABLE} 
+       WHERE start_time IS NOT NULL AND end_time IS NULL 
+       ORDER BY start_time DESC 
+       LIMIT 1;`,
+      [],
+      (_, results) => {
+        if (results.rows.length > 0) {
+          const item = results.rows.item(0);
+          const startDatetime = new Date(item.start_time);
+          const session: Session = {
+            id: item.id,
+            activity: item.activity,
+            distance: item.distance,
+            status: item.status,
+            startDate: startDatetime,
+            endDate: undefined,
+            duration: differenceInSeconds(new Date(), startDatetime),
+          };
+          callback(session);
+        } else {
+          callback(undefined);
+        }
+      },
+      error => {
+        console.error('Error fetching last ongoing session:', error);
+        callback(undefined);
+      },
+    );
+  });
+};
+
 // Reminders
 export const getReminders = (
   db: SQLiteDatabase,

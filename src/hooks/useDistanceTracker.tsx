@@ -8,7 +8,7 @@ const useDistanceTracker = () => {
     [],
   );
 
-  return {distance, handleNewDistance};
+  return {distance, handleNewDistance, setDistance};
 };
 
 export default useDistanceTracker;
