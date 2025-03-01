@@ -32,9 +32,9 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
-    <!--<service
+    <service
         android:name=".LocationTrackingService"
         android:foregroundServiceType="location"
-        android:exported="false" />-->
+        android:exported="false" />
     </application>
 </manifest>
